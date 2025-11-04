@@ -103,6 +103,7 @@ function App() {
             user={currentUser}
             badges={userBadgeAwards}
             badgeDefinitions={badges || []}
+            onSignOut={handleSignOut}
           />
         )}
       </DashboardLayout>

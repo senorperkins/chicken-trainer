@@ -2,7 +2,8 @@ import { User, BadgeAward, Badge as BadgeType } from '@/lib/types'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Medal, Envelope, Calendar } from '@phosphor-icons/react'
+import { Button } from '@/components/ui/button'
+import { Medal, Envelope, Calendar, SignOut, Gear } from '@phosphor-icons/react'
 import { AvatarPicker } from '@/components/AvatarPicker'
 import { getUserAvatarUrl } from '@/lib/avatars'
 import { useKV } from '@github/spark/hooks'
@@ -12,9 +13,10 @@ interface ProfileTabProps {
   user: User
   badges: BadgeAward[]
   badgeDefinitions: BadgeType[]
+  onSignOut?: () => void
 }
 
-export function ProfileTab({ user, badges, badgeDefinitions }: ProfileTabProps) {
+export function ProfileTab({ user, badges, badgeDefinitions, onSignOut }: ProfileTabProps) {
   const [users, setUsers] = useKV<User[]>('users', [])
   
   const getBadgeDefinition = (badgeAward: BadgeAward) => {
@@ -189,6 +191,27 @@ export function ProfileTab({ user, badges, badgeDefinitions }: ProfileTabProps) 
           )}
         </CardContent>
       </Card>
+
+      <div className="flex flex-col sm:flex-row gap-3 mb-6">
+        <Button
+          variant="outline"
+          size="lg"
+          className="flex-1 gap-2"
+          onClick={() => toast.info('Settings coming soon!')}
+        >
+          <Gear size={20} />
+          Settings
+        </Button>
+        <Button
+          variant="destructive"
+          size="lg"
+          className="flex-1 gap-2"
+          onClick={onSignOut}
+        >
+          <SignOut size={20} />
+          Sign Out
+        </Button>
+      </div>
     </div>
   )
 }
