@@ -32,6 +32,11 @@ function App() {
     setShowOnboarding(false)
   }
 
+  const handleSignOut = () => {
+    setCurrentUser(null)
+    setCurrentTenant(null)
+  }
+
   const handleTabChange = (tab: string) => {
     setActiveTab(tab)
   }
@@ -62,6 +67,7 @@ function App() {
         tenant={currentTenant}
         activeTab={activeTab}
         onTabChange={handleTabChange}
+        onSignOut={handleSignOut}
       >
         {activeTab === 'home' && (
           <HomeTab

@@ -3,7 +3,8 @@ import { User, Tenant } from '@/lib/types'
 import { TenantBanner } from './TenantBanner'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { House, GraduationCap, Calendar, BookOpen, UserCircle } from '@phosphor-icons/react'
+import { Button } from '@/components/ui/button'
+import { House, GraduationCap, Calendar, BookOpen, UserCircle, SignOut } from '@phosphor-icons/react'
 import { getUserAvatarUrl } from '@/lib/avatars'
 
 interface DashboardLayoutProps {
@@ -13,6 +14,7 @@ interface DashboardLayoutProps {
   children?: ReactNode
   activeTab?: string
   onTabChange?: (tab: string) => void
+  onSignOut?: () => void
 }
 
 export function DashboardLayout({ 
@@ -21,7 +23,8 @@ export function DashboardLayout({
   mode = 'normal',
   children,
   activeTab = 'home',
-  onTabChange
+  onTabChange,
+  onSignOut
 }: DashboardLayoutProps) {
   const avatarUrl = getUserAvatarUrl(user)
   
@@ -79,6 +82,14 @@ export function DashboardLayout({
                   </AvatarFallback>
                 </Avatar>
                 <span className="hidden md:inline text-sm font-medium">{user.display_name}</span>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={onSignOut}
+                  className="ml-2"
+                >
+                  <SignOut className="text-muted-foreground" />
+                </Button>
               </div>
             </div>
           </div>
