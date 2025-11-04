@@ -3,11 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Medal, Envelope, Calendar, SignOut, Gear } from '@phosphor-icons/react'
-import { AvatarPicker } from '@/components/AvatarPicker'
+import { Medal, Envelope, Calendar, SignOut } from '@phosphor-icons/react'
+import { EditProfileDialog } from '@/components/EditProfileDialog'
+import { SettingsDialog } from '@/components/SettingsDialog'
 import { getUserAvatarUrl } from '@/lib/avatars'
 import { useKV } from '@github/spark/hooks'
-import { toast } from 'sonner'
 
 interface ProfileTabProps {
   user: User
@@ -23,34 +23,14 @@ export function ProfileTab({ user, badges, badgeDefinitions, onSignOut }: Profil
     return badgeDefinitions.find(b => b.id === badgeAward.badge_id)
   }
 
-  const handleAvatarChange = (avatarId: string, avatarSource: 'default_pack') => {
+  const handleProfileUpdate = (updates: { display_name?: string; avatar_id?: string; avatar_url?: string; avatar_source?: 'default_pack' | 'uploaded' }) => {
     setUsers((currentUsers) => 
       (currentUsers || []).map(u => 
         u.id === user.id 
-          ? { ...u, avatar_id: avatarId, avatar_source: avatarSource, avatar_url: undefined }
+          ? { ...u, ...updates }
           : u
       )
     )
-  }
-
-  const handleAvatarUpload = async (file: File): Promise<void> => {
-    const reader = new FileReader()
-    return new Promise((resolve, reject) => {
-      reader.onload = async (e) => {
-        const dataUrl = e.target?.result as string
-        
-        setUsers((currentUsers) =>
-          (currentUsers || []).map(u =>
-            u.id === user.id
-              ? { ...u, avatar_url: dataUrl, avatar_source: 'uploaded' as const, avatar_id: undefined }
-              : u
-          )
-        )
-        resolve()
-      }
-      reader.onerror = () => reject(new Error('Failed to read file'))
-      reader.readAsDataURL(file)
-    })
   }
 
   const avatarUrl = getUserAvatarUrl(user)
@@ -60,21 +40,12 @@ export function ProfileTab({ user, badges, badgeDefinitions, onSignOut }: Profil
       <Card>
         <CardContent className="pt-6">
           <div className="flex flex-col sm:flex-row items-center gap-6">
-            <div className="relative">
-              <Avatar className="w-24 h-24">
-                <AvatarImage src={avatarUrl} />
-                <AvatarFallback className="text-5xl">
-                  🐔
-                </AvatarFallback>
-              </Avatar>
-              <AvatarPicker
-                currentAvatarId={user.avatar_id}
-                currentAvatarUrl={user.avatar_url}
-                currentAvatarSource={user.avatar_source}
-                onAvatarChange={handleAvatarChange}
-                onAvatarUpload={handleAvatarUpload}
-              />
-            </div>
+            <Avatar className="w-24 h-24">
+              <AvatarImage src={avatarUrl} />
+              <AvatarFallback className="text-5xl">
+                🐔
+              </AvatarFallback>
+            </Avatar>
             
             <div className="flex-1 text-center sm:text-left space-y-2">
               <h1 className="text-3xl font-display font-bold">{user.display_name}</h1>
@@ -193,25 +164,19 @@ export function ProfileTab({ user, badges, badgeDefinitions, onSignOut }: Profil
       </Card>
 
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
-        <Button
-          variant="outline"
-          size="lg"
-          className="flex-1 gap-2"
-          onClick={() => toast.info('Settings coming soon!')}
-        >
-          <Gear size={20} />
-          Settings
-        </Button>
-        <Button
-          variant="destructive"
-          size="lg"
-          className="flex-1 gap-2"
-          onClick={onSignOut}
-        >
-          <SignOut size={20} />
-          Sign Out
-        </Button>
+        <EditProfileDialog user={user} onSave={handleProfileUpdate} />
+        <SettingsDialog />
       </div>
+      
+      <Button
+        variant="destructive"
+        size="lg"
+        className="w-full gap-2"
+        onClick={onSignOut}
+      >
+        <SignOut size={20} />
+        Sign Out
+      </Button>
     </div>
   )
 }

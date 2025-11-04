@@ -13,6 +13,26 @@ export async function mockGoogleSSO(): Promise<{ email: string; name: string; av
   })
 }
 
+export async function checkUserExists(email: string): Promise<{
+  exists: boolean
+  user?: User
+  tenant?: Tenant
+}> {
+  const users = await window.spark.kv.get<User[]>('users') || []
+  const tenants = await window.spark.kv.get<Tenant[]>('tenants') || []
+  
+  const user = users.find(u => u.email === email && u.active)
+  
+  if (user) {
+    const tenant = tenants.find(t => t.id === user.tenant_id)
+    if (tenant) {
+      return { exists: true, user, tenant }
+    }
+  }
+  
+  return { exists: false }
+}
+
 export async function verifyOOCode(code: string, email: string): Promise<{
   valid: boolean
   user?: User

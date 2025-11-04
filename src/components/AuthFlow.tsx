@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { CircleNotch } from '@phosphor-icons/react'
-import { mockGoogleSSO, verifyOOCode, isDeveloperWhitelisted, DEVELOPER_CODE } from '@/lib/auth'
+import { mockGoogleSSO, verifyOOCode, isDeveloperWhitelisted, DEVELOPER_CODE, checkUserExists } from '@/lib/auth'
 import { User, Tenant } from '@/lib/types'
 
 interface AuthFlowProps {
@@ -25,7 +25,14 @@ export function AuthFlow({ onAuthenticated }: AuthFlowProps) {
     try {
       const data = await mockGoogleSSO()
       setSsoData(data)
-      setStep('oo_code')
+      
+      const userExists = await checkUserExists(data.email)
+      
+      if (userExists.exists && userExists.user && userExists.tenant) {
+        onAuthenticated(userExists.user, userExists.tenant)
+      } else {
+        setStep('oo_code')
+      }
     } catch (err) {
       setError('Failed to authenticate with Google. Please try again.')
     } finally {
@@ -95,7 +102,7 @@ export function AuthFlow({ onAuthenticated }: AuthFlowProps) {
           <CardDescription>
             {step === 'sso' 
               ? 'Sign in to access your training dashboard'
-              : 'Enter your Owner-Operator Code'
+              : 'Welcome! Please enter your Owner-Operator Code'
             }
           </CardDescription>
         </CardHeader>

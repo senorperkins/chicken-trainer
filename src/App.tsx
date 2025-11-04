@@ -17,11 +17,35 @@ function App() {
   const [showOnboarding, setShowOnboarding] = useKV<boolean>('show_onboarding', true)
   const [activeTab, setActiveTab] = useKV<string>('active_tab', 'home')
   
+  const [users] = useKV<User[]>('users', [])
   const [assignments] = useKV<Assignment[]>('assignments', [])
   const [trainings] = useKV<Training[]>('trainings', [])
   const [badgeAwards] = useKV<BadgeAward[]>('badge_awards', [])
   const [badges] = useKV<Badge[]>('badges', [])
   const [schedules] = useKV<Schedule[]>('schedules', [])
+  
+  const [appearanceSettings] = useKV<{ theme: 'light' | 'dark' | 'system' }>('appearance_settings', { theme: 'system' })
+
+  useEffect(() => {
+    if (currentUser && users) {
+      const updatedUser = users.find(u => u.id === currentUser.id)
+      if (updatedUser && JSON.stringify(updatedUser) !== JSON.stringify(currentUser)) {
+        setCurrentUser(updatedUser)
+      }
+    }
+  }, [users])
+
+  useEffect(() => {
+    if (appearanceSettings) {
+      const theme = appearanceSettings.theme
+      if (theme === 'system') {
+        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+        document.documentElement.classList.toggle('dark', isDark)
+      } else {
+        document.documentElement.classList.toggle('dark', theme === 'dark')
+      }
+    }
+  }, [appearanceSettings])
 
   const handleAuthenticated = (user: User, tenant: Tenant) => {
     setCurrentUser(user)
@@ -35,6 +59,7 @@ function App() {
   const handleSignOut = () => {
     setCurrentUser(null)
     setCurrentTenant(null)
+    setActiveTab('home')
   }
 
   const handleTabChange = (tab: string) => {
