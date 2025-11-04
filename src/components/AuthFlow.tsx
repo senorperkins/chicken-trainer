@@ -88,10 +88,10 @@ export function AuthFlow({ onAuthenticated }: AuthFlowProps) {
         <CardHeader className="text-center">
           <div className="mb-4">
             <div className="w-20 h-20 bg-primary rounded-2xl mx-auto flex items-center justify-center">
-              <span className="text-4xl font-display font-bold text-primary-foreground">PP</span>
+              <span className="text-4xl font-display font-bold text-primary-foreground">CT</span>
             </div>
           </div>
-          <CardTitle className="text-3xl font-display">ProgressPath</CardTitle>
+          <CardTitle className="text-3xl font-display">Chicken Trainer</CardTitle>
           <CardDescription>
             {step === 'sso' 
               ? 'Sign in to access your training dashboard'
@@ -182,5 +182,5 @@ export function AuthFlow({ onAuthenticated }: AuthFlowProps) {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
