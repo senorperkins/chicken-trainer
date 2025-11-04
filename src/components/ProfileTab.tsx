@@ -15,14 +15,6 @@ export function ProfileTab({ user, badges, badgeDefinitions }: ProfileTabProps) 
     return badgeDefinitions.find(b => b.id === badgeAward.badge_id)
   }
 
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
-      .toUpperCase()
-  }
-
   return (
     <div className="container mx-auto py-6 px-4 space-y-6 max-w-4xl">
       <Card>
@@ -30,8 +22,8 @@ export function ProfileTab({ user, badges, badgeDefinitions }: ProfileTabProps) 
           <div className="flex flex-col sm:flex-row items-center gap-6">
             <Avatar className="w-24 h-24">
               <AvatarImage src={user.avatar_url} />
-              <AvatarFallback className="text-2xl">
-                {getInitials(user.display_name)}
+              <AvatarFallback className="text-5xl">
+                🐔
               </AvatarFallback>
             </Avatar>
             
