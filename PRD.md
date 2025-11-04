@@ -40,6 +40,13 @@ This is a multi-tenant SaaS platform with sophisticated RBAC, tenant isolation, 
 - **Progression**: Training completed → Supervisor reviews evidence → Supervisor awards badge → Employee receives notification → Badge appears on profile
 - **Success criteria**: All badges show issuer, timestamp, and related training; badges are permanent unless manually revoked by supervisor
 
+### User Avatar System
+- **Functionality**: Deterministic default avatar assignment from "Barnyard Six" pack (3 cows + 3 chickens) on first login; users can change default selection or upload custom avatar
+- **Purpose**: Personalization and visual identification throughout the application
+- **Trigger**: First successful login (auto-assign); user clicks avatar picker in profile
+- **Progression**: (Auto) First login → Hash user ID → Assign deterministic avatar from pack → Store avatar_id and avatar_source='default_pack' → (Manual) Navigate to Profile → Click camera icon → Choose from defaults or upload (max 5MB, PNG/JPEG/SVG) → Preview → Save → Avatar updates throughout app
+- **Success criteria**: All users have avatars by default; avatars display consistently in navigation, profile, and future features; upload stays under 5MB; Coach Moo never used as user avatar
+
 ### Resource Library with AI Search
 - **Functionality**: PDF document repository with metadata tagging, AI-powered search, auto-tagging, and summarization (human review required)
 - **Purpose**: Centralized knowledge base accessible to all employees in tenant

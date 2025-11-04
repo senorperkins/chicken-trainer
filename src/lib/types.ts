@@ -46,7 +46,9 @@ export interface User {
   store_id?: string
   active: boolean
   created_at: string
+  avatar_id?: string
   avatar_url?: string
+  avatar_source?: 'default_pack' | 'uploaded'
 }
 
 export interface District {
@@ -215,4 +217,18 @@ export interface DashboardMetrics {
   training_completions: number
   badge_awards: number
   library_usage: number
+}
+
+export interface AvatarItem {
+  id: string
+  label: string
+  asset: string
+  category: 'cow' | 'chicken'
+}
+
+export interface AvatarPack {
+  name: string
+  description: string
+  items: AvatarItem[]
+  exclusions: string[]
 }

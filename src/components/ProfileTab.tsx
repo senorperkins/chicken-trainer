@@ -2,7 +2,11 @@ import { User, BadgeAward, Badge as BadgeType } from '@/lib/types'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Medal, Envelope, MapPin, Calendar } from '@phosphor-icons/react'
+import { Medal, Envelope, Calendar } from '@phosphor-icons/react'
+import { AvatarPicker } from '@/components/AvatarPicker'
+import { getUserAvatarUrl } from '@/lib/avatars'
+import { useKV } from '@github/spark/hooks'
+import { toast } from 'sonner'
 
 interface ProfileTabProps {
   user: User
@@ -11,21 +15,64 @@ interface ProfileTabProps {
 }
 
 export function ProfileTab({ user, badges, badgeDefinitions }: ProfileTabProps) {
+  const [users, setUsers] = useKV<User[]>('users', [])
+  
   const getBadgeDefinition = (badgeAward: BadgeAward) => {
     return badgeDefinitions.find(b => b.id === badgeAward.badge_id)
   }
+
+  const handleAvatarChange = (avatarId: string, avatarSource: 'default_pack') => {
+    setUsers((currentUsers) => 
+      (currentUsers || []).map(u => 
+        u.id === user.id 
+          ? { ...u, avatar_id: avatarId, avatar_source: avatarSource, avatar_url: undefined }
+          : u
+      )
+    )
+  }
+
+  const handleAvatarUpload = async (file: File): Promise<void> => {
+    const reader = new FileReader()
+    return new Promise((resolve, reject) => {
+      reader.onload = async (e) => {
+        const dataUrl = e.target?.result as string
+        
+        setUsers((currentUsers) =>
+          (currentUsers || []).map(u =>
+            u.id === user.id
+              ? { ...u, avatar_url: dataUrl, avatar_source: 'uploaded' as const, avatar_id: undefined }
+              : u
+          )
+        )
+        resolve()
+      }
+      reader.onerror = () => reject(new Error('Failed to read file'))
+      reader.readAsDataURL(file)
+    })
+  }
+
+  const avatarUrl = getUserAvatarUrl(user)
 
   return (
     <div className="container mx-auto py-6 px-4 space-y-6 max-w-4xl">
       <Card>
         <CardContent className="pt-6">
           <div className="flex flex-col sm:flex-row items-center gap-6">
-            <Avatar className="w-24 h-24">
-              <AvatarImage src={user.avatar_url} />
-              <AvatarFallback className="text-5xl">
-                🐔
-              </AvatarFallback>
-            </Avatar>
+            <div className="relative">
+              <Avatar className="w-24 h-24">
+                <AvatarImage src={avatarUrl} />
+                <AvatarFallback className="text-5xl">
+                  🐔
+                </AvatarFallback>
+              </Avatar>
+              <AvatarPicker
+                currentAvatarId={user.avatar_id}
+                currentAvatarUrl={user.avatar_url}
+                currentAvatarSource={user.avatar_source}
+                onAvatarChange={handleAvatarChange}
+                onAvatarUpload={handleAvatarUpload}
+              />
+            </div>
             
             <div className="flex-1 text-center sm:text-left space-y-2">
               <h1 className="text-3xl font-display font-bold">{user.display_name}</h1>

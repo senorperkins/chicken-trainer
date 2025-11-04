@@ -1,4 +1,5 @@
 import { User, Tenant, OOCode } from './types'
+import { assignDeterministicAvatar } from './avatars'
 
 export async function mockGoogleSSO(): Promise<{ email: string; name: string; avatar: string }> {
   return new Promise((resolve) => {
@@ -29,13 +30,27 @@ export async function verifyOOCode(code: string, email: string): Promise<{
   }
   
   const tenant = tenants.find(t => t.id === ooCode.tenant_id)
-  const user = users.find(u => u.email === email && u.tenant_id === ooCode.tenant_id)
+  let user = users.find(u => u.email === email && u.tenant_id === ooCode.tenant_id)
   
   if (!tenant) {
     return { valid: false }
   }
   
   if (user) {
+    if (!user.avatar_id && !user.avatar_url) {
+      const assignedAvatar = assignDeterministicAvatar(user.id || user.email)
+      user = {
+        ...user,
+        avatar_id: assignedAvatar.id,
+        avatar_source: 'default_pack'
+      }
+      
+      const updatedUsers = users.map(u => 
+        u.id === user!.id ? user! : u
+      )
+      await window.spark.kv.set('users', updatedUsers)
+    }
+    
     return { valid: true, user, tenant, ooCode }
   } else {
     return { valid: true, tenant, ooCode }
