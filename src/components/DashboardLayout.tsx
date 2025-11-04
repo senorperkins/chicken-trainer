@@ -3,7 +3,8 @@ import { User, Tenant } from '@/lib/types'
 import { TenantBanner } from './TenantBanner'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import { House, GraduationCap, Calendar, BookOpen, SignOut } from '@phosphor-icons/react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { House, GraduationCap, Calendar, BookOpen, SignOut, Code, ArrowCounterClockwise } from '@phosphor-icons/react'
 import { getUserAvatarUrl } from '@/lib/avatars'
 import { cn } from '@/lib/utils'
 import { useIsMobile } from '@/hooks/use-mobile'
@@ -16,6 +17,9 @@ interface DashboardLayoutProps {
   activeTab?: string
   onTabChange?: (tab: string) => void
   onSignOut?: () => void
+  isDeveloper?: boolean
+  isImpersonating?: boolean
+  onStopImpersonating?: () => void
 }
 
 export function DashboardLayout({ 
@@ -25,22 +29,41 @@ export function DashboardLayout({
   children,
   activeTab = 'home',
   onTabChange,
-  onSignOut
+  onSignOut,
+  isDeveloper = false,
+  isImpersonating = false,
+  onStopImpersonating
 }: DashboardLayoutProps) {
   const isMobile = useIsMobile()
   const avatarUrl = getUserAvatarUrl(user)
   
-  const navItems = [
-    { id: 'training', icon: GraduationCap, label: 'Training' },
-    { id: 'library', icon: BookOpen, label: 'Library' },
-    { id: 'home', icon: House, label: 'Home', isCenter: true },
-    { id: 'schedule', icon: Calendar, label: 'Schedule' },
-  ]
+  const navItems = isDeveloper && !isImpersonating
+    ? [
+        { id: 'developer', icon: Code, label: 'Developer' },
+      ]
+    : [
+        { id: 'training', icon: GraduationCap, label: 'Training' },
+        { id: 'library', icon: BookOpen, label: 'Library' },
+        { id: 'home', icon: House, label: 'Home', isCenter: true },
+        { id: 'schedule', icon: Calendar, label: 'Schedule' },
+      ]
   
   if (isMobile) {
     return (
       <div className="min-h-screen bg-background flex flex-col pb-14">
         <TenantBanner tenant={tenant} mode={mode} />
+        
+        {isImpersonating && (
+          <Alert className="m-4 bg-warning/10 border-warning">
+            <ArrowCounterClockwise className="h-4 w-4" />
+            <AlertDescription className="flex items-center justify-between">
+              <span>Viewing as {user.display_name}</span>
+              <Button size="sm" variant="outline" onClick={onStopImpersonating}>
+                Exit
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
         
         <div className="flex-1 overflow-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           <style>{`
@@ -159,13 +182,31 @@ export function DashboardLayout({
           </div>
         </div>
 
+        {isImpersonating && (
+          <div className="p-3 bg-warning/10 border-b border-warning">
+            <p className="text-xs font-medium text-warning-foreground mb-2">Impersonating User</p>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={onStopImpersonating}
+              className="w-full gap-2"
+            >
+              <ArrowCounterClockwise size={16} />
+              Exit Impersonation
+            </Button>
+          </div>
+        )}
+
         <nav className="flex-1 p-3 space-y-1">
-          {[
-            { id: 'home', icon: House, label: 'Home' },
-            { id: 'training', icon: GraduationCap, label: 'Training' },
-            { id: 'schedule', icon: Calendar, label: 'Schedule' },
-            { id: 'library', icon: BookOpen, label: 'Library' },
-          ].map(({ id, icon: Icon, label }) => (
+          {(isDeveloper && !isImpersonating
+            ? [{ id: 'developer', icon: Code, label: 'Developer Console' }]
+            : [
+                { id: 'home', icon: House, label: 'Home' },
+                { id: 'training', icon: GraduationCap, label: 'Training' },
+                { id: 'schedule', icon: Calendar, label: 'Schedule' },
+                { id: 'library', icon: BookOpen, label: 'Library' },
+              ]
+          ).map(({ id, icon: Icon, label }) => (
             <Button
               key={id}
               variant={activeTab === id ? 'default' : 'ghost'}

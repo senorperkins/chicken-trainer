@@ -18,6 +18,7 @@ interface ProfileTabProps {
 
 export function ProfileTab({ user, badges, badgeDefinitions, onSignOut }: ProfileTabProps) {
   const [users, setUsers] = useKV<User[]>('users', [])
+  const [, setCurrentUser] = useKV<User | null>('current_user', null)
   
   const getBadgeDefinition = (badgeAward: BadgeAward) => {
     return badgeDefinitions.find(b => b.id === badgeAward.badge_id)
@@ -31,6 +32,14 @@ export function ProfileTab({ user, badges, badgeDefinitions, onSignOut }: Profil
           : u
       )
     )
+    
+    setCurrentUser((currentUser) => {
+      if (!currentUser) return null
+      if (currentUser.id === user.id) {
+        return { ...currentUser, ...updates }
+      }
+      return currentUser
+    })
   }
 
   const avatarUrl = getUserAvatarUrl(user)

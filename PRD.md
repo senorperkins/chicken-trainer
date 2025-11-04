@@ -76,11 +76,11 @@ This is a multi-tenant SaaS platform with sophisticated RBAC, tenant isolation, 
 - **Success criteria**: Notes are private to intended audience; edit rights limited to author and author's supervisors
 
 ### Developer Console & Maintenance Access
-- **Functionality**: Developers access system-wide tenant browser, logs, and can accept time-limited maintenance tokens for production writes
-- **Purpose**: Enables safe troubleshooting and data fixes without breaking tenant isolation
+- **Functionality**: Developers access system-wide tenant browser, logs, user impersonation, and can accept time-limited maintenance tokens for production writes
+- **Purpose**: Enables safe troubleshooting and data fixes without breaking tenant isolation, plus ability to test user experiences
 - **Trigger**: Developer logs in with code 8675309; Owner/DM issues maintenance request
-- **Progression**: Developer views tenant list → Owner creates maintenance ticket → Developer reviews → Owner issues token with scope/duration → Developer accepts → Performs scoped actions → Token expires → All actions logged
-- **Success criteria**: Developers read-only by default in prod; all write actions require token; audit log captures every developer action
+- **Progression**: Developer views tenant list → Select user to impersonate → View app as that user → Exit impersonation → Return to developer console → Owner creates maintenance ticket → Developer reviews → Owner issues token with scope/duration → Developer accepts → Performs scoped actions → Token expires → All actions logged
+- **Success criteria**: Developers read-only by default in prod; user impersonation allows testing without data changes; all write actions require token; audit log captures every developer action; test user available for safe impersonation testing
 
 ### Dashboards & Metrics
 - **Functionality**: Role-appropriate dashboards showing KPIs, trends, and actionable insights with drill-down capability

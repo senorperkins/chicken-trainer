@@ -72,6 +72,24 @@ export async function verifyOOCode(code: string, email: string): Promise<{
     }
     
     return { valid: true, user, tenant, ooCode }
+  } else if (ooCode.type === 'developer') {
+    const assignedAvatar = assignDeterministicAvatar(email)
+    const newUser: User = {
+      id: `dev_${Date.now()}`,
+      email,
+      display_name: email.split('@')[0],
+      role: 'Developer',
+      oo_code: code,
+      tenant_id: tenant.id,
+      active: true,
+      created_at: new Date().toISOString(),
+      avatar_id: assignedAvatar.id,
+      avatar_source: 'default_pack'
+    }
+    
+    await window.spark.kv.set('users', [...users, newUser])
+    
+    return { valid: true, user: newUser, tenant, ooCode }
   } else {
     return { valid: true, tenant, ooCode }
   }
