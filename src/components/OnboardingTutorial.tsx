@@ -13,7 +13,7 @@ export function OnboardingTutorial({ userName, onComplete }: OnboardingTutorialP
   const [step, setStep] = useState(0)
   
   const script = [
-    `Howdy ${userName}! Welcome to ProgressPath.`,
+    `Howdy ${userName}! Welcome to Chicken Trainer.`,
     `I'm Coach Moo — here to help you get mooo-ving through your first training!`,
     `Tap your name badge to see what's next on your path.`
   ]

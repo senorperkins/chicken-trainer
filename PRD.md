@@ -1,4 +1,4 @@
-# ProgressPath - Product Requirements Document
+# Chicken Trainer - Product Requirements Document
 
 An internal training tracker and resource library for owner-operators to track employee progression, issue mastery badges, manage schedules, and support shift swaps across multiple tenants.
 
