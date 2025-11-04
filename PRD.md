@@ -194,8 +194,13 @@ Animations should feel **warm and reassuring**, reinforcing the sense of progres
   - Button padding: 2.5 4 (10px 16px)
 
 - **Mobile**:
-  - Navigation: Bottom tab bar on mobile, sidebar on desktop
+  - Navigation: Refined bottom navigation bar on mobile with curved hump design around centered home button; full-width sidebar with collapse on desktop
+  - Device Detection: App detects and displays device type (Mobile/Tablet/Web) on sign-in screen
+  - Bottom Bar Design: Half the previous height, full-width red background with no rounded corners, unified body appearance
+  - Navigation Buttons: Icon-only (no labels), smaller than home button, with pop-out effect on interaction
+  - Home Button: Larger circular button (16px diameter) with elevated positioning creating hump in nav bar
   - Cards: Full-width on mobile, grid on tablet+
   - Tables: Horizontal scroll on mobile, card view option
   - Dialogs: Full-screen on mobile, centered modal on desktop
   - Name badge: Larger touch target on mobile, flip gesture enabled
+  - Web vs Mobile: Clear visual distinction - desktop uses sidebar navigation, mobile uses bottom nav bar

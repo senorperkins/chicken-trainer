@@ -3,12 +3,37 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { CircleNotch } from '@phosphor-icons/react'
+import { Badge } from '@/components/ui/badge'
+import { CircleNotch, DeviceMobile, Desktop, DeviceTablet } from '@phosphor-icons/react'
 import { mockGoogleSSO, verifyOOCode, isDeveloperWhitelisted, DEVELOPER_CODE, checkUserExists } from '@/lib/auth'
 import { User, Tenant } from '@/lib/types'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 interface AuthFlowProps {
   onAuthenticated: (user: User, tenant: Tenant) => void
+}
+
+function getDeviceType() {
+  const userAgent = navigator.userAgent.toLowerCase()
+  const width = window.innerWidth
+  
+  if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(userAgent)) {
+    return { type: 'tablet' as const, icon: DeviceTablet, label: 'Tablet' }
+  }
+  
+  if (/mobile|iphone|ipod|android|blackberry|opera mini|opera mobi|skyfire|maemo|windows phone|palm|iemobile|symbian|symbianos|fennec/i.test(userAgent)) {
+    return { type: 'mobile' as const, icon: DeviceMobile, label: 'Mobile' }
+  }
+  
+  if (width < 768) {
+    return { type: 'mobile' as const, icon: DeviceMobile, label: 'Mobile' }
+  }
+  
+  if (width >= 768 && width < 1024) {
+    return { type: 'tablet' as const, icon: DeviceTablet, label: 'Tablet' }
+  }
+  
+  return { type: 'desktop' as const, icon: Desktop, label: 'Web' }
 }
 
 export function AuthFlow({ onAuthenticated }: AuthFlowProps) {
@@ -17,6 +42,9 @@ export function AuthFlow({ onAuthenticated }: AuthFlowProps) {
   const [error, setError] = useState<string>()
   const [ooCode, setOoCode] = useState('')
   const [ssoData, setSsoData] = useState<{ email: string; name: string; avatar: string }>()
+  const isMobile = useIsMobile()
+  const deviceInfo = getDeviceType()
+  const DeviceIcon = deviceInfo.icon
 
   const handleGoogleSSO = async () => {
     setLoading(true)
@@ -98,10 +126,18 @@ export function AuthFlow({ onAuthenticated }: AuthFlowProps) {
               <span className="text-4xl font-display font-bold text-primary-foreground">CT</span>
             </div>
           </div>
-          <CardTitle className="text-3xl font-display">Chicken Trainer</CardTitle>
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <CardTitle className="text-3xl font-display">Chicken Trainer</CardTitle>
+          </div>
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Badge variant="secondary" className="gap-1.5">
+              <DeviceIcon size={14} />
+              {deviceInfo.label}
+            </Badge>
+          </div>
           <CardDescription>
             {step === 'sso' 
-              ? 'Sign in to access your training dashboard'
+              ? `Sign in to access your training dashboard`
               : 'Welcome! Please enter your Owner-Operator Code'
             }
           </CardDescription>
