@@ -1,39 +1,14 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
-import { CircleNotch, DeviceMobile, Desktop, DeviceTablet } from '@phosphor-icons/react'
-import { mockGoogleSSO, verifyOOCode, isDeveloperWhitelisted, DEVELOPER_CODE, checkUserExists } from '@/lib/auth'
+import { CircleNotch } from '@phosphor-icons/react'
+import { mockGoogleSSO, mockAppleSSO, verifyOOCode, isDeveloperWhitelisted, DEVELOPER_CODE, checkUserExists, recordDeviceAccess } from '@/lib/auth'
 import { User, Tenant } from '@/lib/types'
-import { useIsMobile } from '@/hooks/use-mobile'
 
 interface AuthFlowProps {
   onAuthenticated: (user: User, tenant: Tenant) => void
-}
-
-function getDeviceType() {
-  const userAgent = navigator.userAgent.toLowerCase()
-  const width = window.innerWidth
-  
-  if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(userAgent)) {
-    return { type: 'tablet' as const, icon: DeviceTablet, label: 'Tablet' }
-  }
-  
-  if (/mobile|iphone|ipod|android|blackberry|opera mini|opera mobi|skyfire|maemo|windows phone|palm|iemobile|symbian|symbianos|fennec/i.test(userAgent)) {
-    return { type: 'mobile' as const, icon: DeviceMobile, label: 'Mobile' }
-  }
-  
-  if (width < 768) {
-    return { type: 'mobile' as const, icon: DeviceMobile, label: 'Mobile' }
-  }
-  
-  if (width >= 768 && width < 1024) {
-    return { type: 'tablet' as const, icon: DeviceTablet, label: 'Tablet' }
-  }
-  
-  return { type: 'desktop' as const, icon: Desktop, label: 'Web' }
 }
 
 export function AuthFlow({ onAuthenticated }: AuthFlowProps) {
@@ -42,13 +17,16 @@ export function AuthFlow({ onAuthenticated }: AuthFlowProps) {
   const [error, setError] = useState<string>()
   const [ooCode, setOoCode] = useState('')
   const [ssoData, setSsoData] = useState<{ email: string; name: string; avatar: string }>()
-  const isMobile = useIsMobile()
-  const deviceInfo = getDeviceType()
-  const DeviceIcon = deviceInfo.icon
+  const [signInProvider, setSignInProvider] = useState<'standard' | 'google' | 'apple'>()
 
-  const handleGoogleSSO = async () => {
+  useEffect(() => {
+    recordDeviceAccess()
+  }, [])
+
+  const handleStandardSignIn = async () => {
     setLoading(true)
     setError(undefined)
+    setSignInProvider('standard')
     
     try {
       const data = await mockGoogleSSO()
@@ -57,12 +35,61 @@ export function AuthFlow({ onAuthenticated }: AuthFlowProps) {
       const userExists = await checkUserExists(data.email)
       
       if (userExists.exists && userExists.user && userExists.tenant) {
+        await recordDeviceAccess()
+        onAuthenticated(userExists.user, userExists.tenant)
+      } else {
+        setStep('oo_code')
+      }
+    } catch (err) {
+      setError('Failed to sign in. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleGoogleSSO = async () => {
+    setLoading(true)
+    setError(undefined)
+    setSignInProvider('google')
+    
+    try {
+      const data = await mockGoogleSSO()
+      setSsoData(data)
+      
+      const userExists = await checkUserExists(data.email)
+      
+      if (userExists.exists && userExists.user && userExists.tenant) {
+        await recordDeviceAccess()
         onAuthenticated(userExists.user, userExists.tenant)
       } else {
         setStep('oo_code')
       }
     } catch (err) {
       setError('Failed to authenticate with Google. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleAppleSSO = async () => {
+    setLoading(true)
+    setError(undefined)
+    setSignInProvider('apple')
+    
+    try {
+      const data = await mockAppleSSO()
+      setSsoData(data)
+      
+      const userExists = await checkUserExists(data.email)
+      
+      if (userExists.exists && userExists.user && userExists.tenant) {
+        await recordDeviceAccess()
+        onAuthenticated(userExists.user, userExists.tenant)
+      } else {
+        setStep('oo_code')
+      }
+    } catch (err) {
+      setError('Failed to authenticate with Apple. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -126,33 +153,47 @@ export function AuthFlow({ onAuthenticated }: AuthFlowProps) {
               <span className="text-4xl font-display font-bold text-primary-foreground">CT</span>
             </div>
           </div>
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <CardTitle className="text-3xl font-display">Chicken Trainer</CardTitle>
-          </div>
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <Badge variant="secondary" className="gap-1.5">
-              <DeviceIcon size={14} />
-              {deviceInfo.label}
-            </Badge>
-          </div>
+          <CardTitle className="text-3xl font-display">Chicken Trainer</CardTitle>
           <CardDescription>
-            {step === 'sso' 
-              ? `Sign in to access your training dashboard`
-              : 'Welcome! Please enter your Owner-Operator Code'
+            {step === 'oo_code' 
+              ? 'Welcome! Please enter your Owner-Operator Code'
+              : null
             }
           </CardDescription>
         </CardHeader>
         <CardContent>
           {step === 'sso' && (
-            <div className="space-y-4">
+            <div className="space-y-3">
               <Button
                 size="lg"
+                className="w-full"
+                onClick={handleStandardSignIn}
+                disabled={loading}
+              >
+                {loading && signInProvider === 'standard' && <CircleNotch className="animate-spin" />}
+                Sign In
+              </Button>
+              
+              <Button
+                size="lg"
+                variant="outline"
                 className="w-full"
                 onClick={handleGoogleSSO}
                 disabled={loading}
               >
-                {loading && <CircleNotch className="animate-spin" />}
-                Sign in with Google
+                {loading && signInProvider === 'google' && <CircleNotch className="animate-spin" />}
+                Sign In with Google
+              </Button>
+              
+              <Button
+                size="lg"
+                variant="outline"
+                className="w-full"
+                onClick={handleAppleSSO}
+                disabled={loading}
+              >
+                {loading && signInProvider === 'apple' && <CircleNotch className="animate-spin" />}
+                Sign In with Apple
               </Button>
             </div>
           )}

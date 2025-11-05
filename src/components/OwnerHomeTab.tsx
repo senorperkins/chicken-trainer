@@ -15,6 +15,7 @@ export function OwnerHomeTab({ user, tenant }: OwnerHomeTabProps) {
   const [schedules] = useKV<Schedule[]>('schedules', [])
   const [trainings] = useKV<Training[]>('trainings', [])
   const [attendanceRecords] = useKV<AttendanceRecord[]>('attendance_records', [])
+  const [deviceAccessLogs] = useKV<Array<{ device: string; timestamp: string }>>('device_access_logs', [])
   
   const tenantUsers = (users || []).filter(u => u.tenant_id === tenant.id)
   const tenantAssignments = (assignments || []).filter(a => {
@@ -47,6 +48,10 @@ export function OwnerHomeTab({ user, tenant }: OwnerHomeTabProps) {
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
     return markedDate >= weekAgo && markedDate <= now
   }).length
+
+  const mobileAccessCount = (deviceAccessLogs || []).filter(log => log.device === 'mobile').length
+  const tabletAccessCount = (deviceAccessLogs || []).filter(log => log.device === 'tablet').length
+  const desktopAccessCount = (deviceAccessLogs || []).filter(log => log.device === 'desktop').length
 
   const isOwner = user.role === 'Owner'
   const isDistrictManager = user.role === 'District Manager'
@@ -130,6 +135,29 @@ export function OwnerHomeTab({ user, tenant }: OwnerHomeTabProps) {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Device Access Metrics</CardTitle>
+          <CardDescription>How users are accessing the app</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-3 md:grid-cols-3">
+            <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+              <span className="font-medium">Mobile</span>
+              <span className="text-2xl font-bold text-primary">{mobileAccessCount}</span>
+            </div>
+            <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+              <span className="font-medium">Tablet</span>
+              <span className="text-2xl font-bold text-primary">{tabletAccessCount}</span>
+            </div>
+            <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+              <span className="font-medium">Desktop</span>
+              <span className="text-2xl font-bold text-primary">{desktopAccessCount}</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card>

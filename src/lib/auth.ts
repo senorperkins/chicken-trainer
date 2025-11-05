@@ -13,6 +13,51 @@ export async function mockGoogleSSO(): Promise<{ email: string; name: string; av
   })
 }
 
+export async function mockAppleSSO(): Promise<{ email: string; name: string; avatar: string }> {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        email: 'samuelosorioperkins@gmail.com',
+        name: 'Samuel Perkins',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Samuel'
+      })
+    }, 500)
+  })
+}
+
+function getDeviceType(): 'mobile' | 'tablet' | 'desktop' {
+  const userAgent = navigator.userAgent.toLowerCase()
+  const width = window.innerWidth
+  
+  if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(userAgent)) {
+    return 'tablet'
+  }
+  
+  if (/mobile|iphone|ipod|android|blackberry|opera mini|opera mobi|skyfire|maemo|windows phone|palm|iemobile|symbian|symbianos|fennec/i.test(userAgent)) {
+    return 'mobile'
+  }
+  
+  if (width < 768) {
+    return 'mobile'
+  }
+  
+  if (width >= 768 && width < 1024) {
+    return 'tablet'
+  }
+  
+  return 'desktop'
+}
+
+export async function recordDeviceAccess() {
+  const deviceType = getDeviceType()
+  const timestamp = new Date().toISOString()
+  
+  const accessLogs = await window.spark.kv.get<Array<{ device: string; timestamp: string }>>('device_access_logs') || []
+  accessLogs.push({ device: deviceType, timestamp })
+  
+  await window.spark.kv.set('device_access_logs', accessLogs)
+}
+
 export async function checkUserExists(email: string): Promise<{
   exists: boolean
   user?: User

@@ -29,6 +29,7 @@ export function DeveloperTab({ currentUser, onImpersonate }: DeveloperTabProps) 
   const [users] = useKV<User[]>('users', [])
   const [tenants] = useKV<Tenant[]>('tenants', [])
   const [maintenanceTickets] = useKV<MaintenanceTicket[]>('maintenance_tickets', [])
+  const [deviceAccessLogs] = useKV<Array<{ device: string; timestamp: string }>>('device_access_logs', [])
   const [impersonatedUserId] = useKV<string | null>('impersonated_user_id', null)
   
   const [selectedTenant, setSelectedTenant] = useState<string | null>(null)
@@ -38,6 +39,10 @@ export function DeveloperTab({ currentUser, onImpersonate }: DeveloperTabProps) 
     : (users || [])
 
   const openTickets = (maintenanceTickets || []).filter(t => t.status === 'open' || t.status === 'in_progress')
+
+  const mobileAccessCount = (deviceAccessLogs || []).filter(log => log.device === 'mobile').length
+  const tabletAccessCount = (deviceAccessLogs || []).filter(log => log.device === 'tablet').length
+  const desktopAccessCount = (deviceAccessLogs || []).filter(log => log.device === 'desktop').length
 
   const getTicketStatusColor = (status: string) => {
     switch (status) {
@@ -78,7 +83,7 @@ export function DeveloperTab({ currentUser, onImpersonate }: DeveloperTabProps) 
         </AlertDescription>
       </Alert>
 
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-4">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -106,6 +111,26 @@ export function DeveloperTab({ currentUser, onImpersonate }: DeveloperTabProps) 
             <p className="text-sm text-muted-foreground mt-2">
               Maintenance requests
             </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Device Access</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Mobile</span>
+              <span className="font-bold">{mobileAccessCount}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Tablet</span>
+              <span className="font-bold">{tabletAccessCount}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Desktop</span>
+              <span className="font-bold">{desktopAccessCount}</span>
+            </div>
           </CardContent>
         </Card>
 

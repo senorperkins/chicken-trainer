@@ -5,6 +5,7 @@ import { AuthFlow } from '@/components/AuthFlow'
 import { OnboardingTutorial } from '@/components/OnboardingTutorial'
 import { DashboardLayout } from '@/components/DashboardLayout'
 import { HomeTab } from '@/components/HomeTab'
+import { OwnerHomeTab } from '@/components/OwnerHomeTab'
 import { TrainingTab } from '@/components/TrainingTab'
 import { ScheduleTab } from '@/components/ScheduleTab'
 import { LibraryTab } from '@/components/LibraryTab'
@@ -31,6 +32,13 @@ function App() {
   const [appearanceSettings] = useKV<{ theme: 'light' | 'dark' | 'system' }>('appearance_settings', { theme: 'system' })
 
   const isDeveloper = currentUser?.role === 'Developer'
+  const isOwner = currentUser?.role === 'Owner'
+  const isDistrictManager = currentUser?.role === 'District Manager'
+  const hasActiveTrainings = (assignments || []).filter(a => 
+    a.user_id === currentUser?.id && 
+    (a.status === 'assigned' || a.status === 'in_progress' || a.status === 'overdue')
+  ).length > 0
+
   const viewingUser = isDeveloper && impersonatedUserId
     ? users?.find(u => u.id === impersonatedUserId) || currentUser
     : currentUser
@@ -38,6 +46,18 @@ function App() {
   useEffect(() => {
     ensureSeedData().then(() => setDataInitialized(true))
   }, [])
+
+  useEffect(() => {
+    if (isDeveloper && !impersonatedUserId) {
+      setActiveTab('developer')
+    } else if ((isOwner || isDistrictManager) && !impersonatedUserId) {
+      setActiveTab('owner')
+    } else if (activeTab === 'developer' && !isDeveloper) {
+      setActiveTab('home')
+    } else if (activeTab === 'owner' && !(isOwner || isDistrictManager)) {
+      setActiveTab('home')
+    }
+  }, [isDeveloper, isOwner, isDistrictManager, impersonatedUserId])
 
   useEffect(() => {
     if (currentUser && users) {
@@ -78,12 +98,23 @@ function App() {
 
   const handleImpersonate = (user: User) => {
     setImpersonatedUserId(user.id)
-    setActiveTab('home')
+    const userRole = user.role
+    if (userRole === 'Owner' || userRole === 'District Manager') {
+      setActiveTab('owner')
+    } else {
+      setActiveTab('home')
+    }
   }
 
   const handleStopImpersonating = () => {
     setImpersonatedUserId(null)
-    setActiveTab('developer')
+    if (isDeveloper) {
+      setActiveTab('developer')
+    } else if (isOwner || isDistrictManager) {
+      setActiveTab('owner')
+    } else {
+      setActiveTab('home')
+    }
   }
 
   const handleTabChange = (tab: string) => {
@@ -115,7 +146,7 @@ function App() {
 
   return (
     <>
-      {showOnboarding && !isDeveloper && (
+      {showOnboarding && !isDeveloper && !(isOwner || isDistrictManager) && (
         <OnboardingTutorial
           userName={displayUser.display_name.split(' ')[0]}
           onComplete={handleOnboardingComplete}
@@ -129,8 +160,10 @@ function App() {
         onTabChange={handleTabChange}
         onSignOut={handleSignOut}
         isDeveloper={isDeveloper}
+        isOwner={isOwner || isDistrictManager}
         isImpersonating={impersonatedUserId !== null}
         onStopImpersonating={handleStopImpersonating}
+        hasActiveTrainings={hasActiveTrainings}
       >
         {activeTab === 'home' && (
           <HomeTab
@@ -139,6 +172,13 @@ function App() {
             badges={userBadgeAwards}
             nextShift={nextShift}
             onNavigate={handleTabChange}
+          />
+        )}
+        
+        {activeTab === 'owner' && (isOwner || isDistrictManager) && (
+          <OwnerHomeTab
+            user={displayUser}
+            tenant={currentTenant}
           />
         )}
         

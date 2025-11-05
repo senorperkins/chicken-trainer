@@ -18,8 +18,10 @@ interface DashboardLayoutProps {
   onTabChange?: (tab: string) => void
   onSignOut?: () => void
   isDeveloper?: boolean
+  isOwner?: boolean
   isImpersonating?: boolean
   onStopImpersonating?: () => void
+  hasActiveTrainings?: boolean
 }
 
 export function DashboardLayout({ 
@@ -31,8 +33,10 @@ export function DashboardLayout({
   onTabChange,
   onSignOut,
   isDeveloper = false,
+  isOwner = false,
   isImpersonating = false,
-  onStopImpersonating
+  onStopImpersonating,
+  hasActiveTrainings = false
 }: DashboardLayoutProps) {
   const isMobile = useIsMobile()
   const avatarUrl = getUserAvatarUrl(user)
@@ -41,8 +45,19 @@ export function DashboardLayout({
     ? [
         { id: 'developer', icon: Code, label: 'Developer' },
       ]
-    : [
+    : isOwner && !isImpersonating
+    ? [
+        { id: 'owner', icon: House, label: 'Dashboard', isCenter: true },
+        { id: 'library', icon: BookOpen, label: 'Library' },
+      ]
+    : hasActiveTrainings
+    ? [
         { id: 'training', icon: GraduationCap, label: 'Training' },
+        { id: 'library', icon: BookOpen, label: 'Library' },
+        { id: 'home', icon: House, label: 'Home', isCenter: true },
+        { id: 'schedule', icon: Calendar, label: 'Schedule' },
+      ]
+    : [
         { id: 'library', icon: BookOpen, label: 'Library' },
         { id: 'home', icon: House, label: 'Home', isCenter: true },
         { id: 'schedule', icon: Calendar, label: 'Schedule' },
@@ -200,9 +215,20 @@ export function DashboardLayout({
         <nav className="flex-1 p-3 space-y-1">
           {(isDeveloper && !isImpersonating
             ? [{ id: 'developer', icon: Code, label: 'Developer Console' }]
-            : [
+            : isOwner && !isImpersonating
+            ? [
+                { id: 'owner', icon: House, label: 'Dashboard' },
+                { id: 'library', icon: BookOpen, label: 'Library' },
+              ]
+            : hasActiveTrainings
+            ? [
                 { id: 'home', icon: House, label: 'Home' },
                 { id: 'training', icon: GraduationCap, label: 'Training' },
+                { id: 'schedule', icon: Calendar, label: 'Schedule' },
+                { id: 'library', icon: BookOpen, label: 'Library' },
+              ]
+            : [
+                { id: 'home', icon: House, label: 'Home' },
                 { id: 'schedule', icon: Calendar, label: 'Schedule' },
                 { id: 'library', icon: BookOpen, label: 'Library' },
               ]
