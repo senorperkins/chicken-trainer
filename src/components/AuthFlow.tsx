@@ -192,38 +192,32 @@ export function AuthFlow({ onAuthenticated }: AuthFlowProps) {
               
               {isDeveloperWhitelisted(ssoData.email) && (
                 <div className="relative">
-                        >
-                          {loading && <CircleNotch className="animate-spin" />}
-                          Continue
-                        </Button>
-                      </form>
-                      
-                      {isDeveloperWhitelisted(ssoData.email) && (
-                        <div className="relative">
+                  <div className="relative flex justify-center text-xs">
+                    <span className="bg-card px-2 text-muted-foreground">
+                      or
+                    </span>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="w-full"
+                    onClick={handleDeveloperCode}
+                    disabled={loading}
+                  >
+                    Use Developer Code
+                  </Button>
                 </div>
-              )}
-              
-                          <div className="relative flex justify-center text-xs">
-                            <span className="bg-card px-2 text-muted-foreground">
-                  variant="outline"
-                  size="lg"
-                  className="w-full"
-                  onClick={handleDeveloperCode}
-                  disabled={loading}
-                >
-                      {isDeveloperWhitelisted(ssoData.email) && (
-                        <Button
               )}
             </div>
           )}
           
           {error && (
             <div className="mt-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-sm text-destructive">
-                          Use Developer Code
-                        </Button>
+              {error}
+            </div>
           )}
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }
