@@ -192,35 +192,35 @@ export function AuthFlow({ onAuthenticated }: AuthFlowProps) {
               
               {isDeveloperWhitelisted(ssoData.email) && (
                 <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-border" />
-                  </div>
-                  <div className="relative flex justify-center text-xs">
-                    <span className="bg-card px-2 text-muted-foreground">
-                      Developer Access
-                    </span>
-                  </div>
+                        >
+                          {loading && <CircleNotch className="animate-spin" />}
+                          Continue
+                        </Button>
+                      </form>
+                      
+                      {isDeveloperWhitelisted(ssoData.email) && (
+                        <div className="relative">
                 </div>
               )}
               
-              {isDeveloperWhitelisted(ssoData.email) && (
-                <Button
+                          <div className="relative flex justify-center text-xs">
+                            <span className="bg-card px-2 text-muted-foreground">
                   variant="outline"
                   size="lg"
                   className="w-full"
                   onClick={handleDeveloperCode}
                   disabled={loading}
                 >
-                  Use Developer Code
-                </Button>
+                      {isDeveloperWhitelisted(ssoData.email) && (
+                        <Button
               )}
             </div>
           )}
           
           {error && (
             <div className="mt-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-sm text-destructive">
-              {error}
-            </div>
+                          Use Developer Code
+                        </Button>
           )}
         </CardContent>
       </Card>
