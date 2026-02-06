@@ -147,8 +147,18 @@ export function AuthFlow({ onAuthenticated }: AuthFlowProps) {
 
   const handleContinueExisting = async () => {
     if (!existingAccount) return
-    await recordDeviceAccess()
-    onAuthenticated(existingAccount.user, existingAccount.tenant)
+    
+    setLoading(true)
+    setError(undefined)
+    
+    try {
+      await recordDeviceAccess()
+      onAuthenticated(existingAccount.user, existingAccount.tenant)
+    } catch (err) {
+      setError('An error occurred while signing in. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
