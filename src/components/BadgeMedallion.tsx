@@ -28,7 +28,8 @@ export function BadgeMedallion({ name, description, earnedDate, highlighted, onC
 
   return (
     <div 
-      className="w-full max-w-[200px] perspective-1000 cursor-pointer"
+      className="w-full max-w-[200px] cursor-pointer"
+      style={{ perspective: '1000px' }}
       onClick={handleClick}
     >
       <motion.div
@@ -46,7 +47,7 @@ export function BadgeMedallion({ name, description, earnedDate, highlighted, onC
           }`}
           style={{ backfaceVisibility: 'hidden' }}
         >
-          <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-4 ${
+          <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-4 relative ${
             highlighted 
               ? 'bg-white/20' 
               : 'bg-success/10'
