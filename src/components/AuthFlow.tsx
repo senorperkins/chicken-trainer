@@ -12,12 +12,13 @@ interface AuthFlowProps {
 }
 
 export function AuthFlow({ onAuthenticated }: AuthFlowProps) {
-  const [step, setStep] = useState<'sso' | 'oo_code'>('sso')
+  const [step, setStep] = useState<'sso' | 'oo_code' | 'account_confirm'>('sso')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string>()
   const [ooCode, setOoCode] = useState('')
   const [ssoData, setSsoData] = useState<{ email: string; name: string; avatar: string }>()
   const [signInProvider, setSignInProvider] = useState<'standard' | 'google' | 'apple'>()
+  const [existingAccount, setExistingAccount] = useState<{ user: User; tenant: Tenant }>()
 
   useEffect(() => {
     recordDeviceAccess()
@@ -35,8 +36,8 @@ export function AuthFlow({ onAuthenticated }: AuthFlowProps) {
       const userExists = await checkUserExists(data.email)
       
       if (userExists.exists && userExists.user && userExists.tenant) {
-        await recordDeviceAccess()
-        onAuthenticated(userExists.user, userExists.tenant)
+        setExistingAccount({ user: userExists.user, tenant: userExists.tenant })
+        setStep('account_confirm')
       } else {
         setStep('oo_code')
       }
@@ -59,8 +60,8 @@ export function AuthFlow({ onAuthenticated }: AuthFlowProps) {
       const userExists = await checkUserExists(data.email)
       
       if (userExists.exists && userExists.user && userExists.tenant) {
-        await recordDeviceAccess()
-        onAuthenticated(userExists.user, userExists.tenant)
+        setExistingAccount({ user: userExists.user, tenant: userExists.tenant })
+        setStep('account_confirm')
       } else {
         setStep('oo_code')
       }
@@ -83,8 +84,8 @@ export function AuthFlow({ onAuthenticated }: AuthFlowProps) {
       const userExists = await checkUserExists(data.email)
       
       if (userExists.exists && userExists.user && userExists.tenant) {
-        await recordDeviceAccess()
-        onAuthenticated(userExists.user, userExists.tenant)
+        setExistingAccount({ user: userExists.user, tenant: userExists.tenant })
+        setStep('account_confirm')
       } else {
         setStep('oo_code')
       }
@@ -144,6 +145,12 @@ export function AuthFlow({ onAuthenticated }: AuthFlowProps) {
     }
   }
 
+  const handleContinueExisting = async () => {
+    if (!existingAccount) return
+    await recordDeviceAccess()
+    onAuthenticated(existingAccount.user, existingAccount.tenant)
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
@@ -157,6 +164,8 @@ export function AuthFlow({ onAuthenticated }: AuthFlowProps) {
           <CardDescription>
             {step === 'oo_code' 
               ? 'Welcome! Please enter your Owner-Operator Code'
+              : step === 'account_confirm'
+              ? 'We found your account'
               : null
             }
           </CardDescription>
@@ -249,6 +258,33 @@ export function AuthFlow({ onAuthenticated }: AuthFlowProps) {
                   </Button>
                 </div>
               )}
+            </div>
+          )}
+          
+          {step === 'account_confirm' && existingAccount && ssoData && (
+            <div className="space-y-4">
+              <div className="text-center p-4 bg-muted rounded-lg">
+                <p className="text-sm text-muted-foreground">Signed in as</p>
+                <p className="font-medium">{ssoData.name}</p>
+                <p className="text-sm text-muted-foreground">{ssoData.email}</p>
+              </div>
+              
+              <div className="text-center p-4 border rounded-lg">
+                <p className="text-sm text-muted-foreground mb-2">Account found</p>
+                <p className="font-medium">{existingAccount.user.display_name}</p>
+                <p className="text-sm text-muted-foreground">{existingAccount.user.role}</p>
+                <p className="text-xs text-muted-foreground mt-2">{existingAccount.tenant.name}</p>
+              </div>
+              
+              <Button
+                size="lg"
+                className="w-full"
+                onClick={handleContinueExisting}
+                disabled={loading}
+              >
+                {loading && <CircleNotch className="animate-spin" />}
+                Continue as {existingAccount.user.display_name}
+              </Button>
             </div>
           )}
           
