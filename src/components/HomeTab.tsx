@@ -1,4 +1,4 @@
-import { User, Assignment, BadgeAward, Badge as BadgeType, Schedule } from '@/lib/types'
+import { User, Assignment, BadgeAward, Schedule } from '@/lib/types'
 import { NameBadge } from './NameBadge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -9,7 +9,7 @@ interface HomeTabProps {
   user: User
   assignments: Assignment[]
   badges: BadgeAward[]
-  badgeDefinitions: BadgeType[]
+  badgeDefinitions: { id: string; name: string }[]
   nextShift?: Schedule
   onNavigate: (tab: string) => void
 }
@@ -48,6 +48,10 @@ export function HomeTab({ user, assignments, badges, badgeDefinitions, nextShift
     if (!a.due_date) return false
     return new Date(a.due_date) < new Date()
   })
+
+  const featuredBadge = user.featured_badge_id
+    ? badgeDefinitions.find(b => b.id === user.featured_badge_id)?.name
+    : undefined
 
   return (
     <div className="container mx-auto py-6 px-4 space-y-6">

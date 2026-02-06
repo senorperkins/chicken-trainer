@@ -49,6 +49,7 @@ export interface User {
   avatar_id?: string
   avatar_url?: string
   avatar_source?: 'default_pack' | 'uploaded'
+  featured_badge_id?: string
 }
 
 export interface District {
