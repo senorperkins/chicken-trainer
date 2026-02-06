@@ -1,4 +1,4 @@
-import { User, Tenant, OOCode, Training, Badge, Assignment, Schedule, MaintenanceTicket } from './types'
+import { User, Tenant, OOCode, Training, Badge, Assignment, Schedule, MaintenanceTicket, BadgeAward } from './types'
 import { assignDeterministicAvatar } from './avatars'
 
 export async function ensureSeedData() {
