@@ -12,10 +12,14 @@ import {
   Users, 
   Eye, 
   ArrowCounterClockwise, 
+  Sparkle,
   Wrench,
   CheckCircle,
   Clock,
-  XCircle
+  XCircle,
+  ShieldCheck,
+  UserFocus,
+  UserCircle
 } from '@phosphor-icons/react'
 import { getUserAvatarUrl } from '@/lib/avatars'
 import { toast } from 'sonner'
