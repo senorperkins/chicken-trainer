@@ -170,6 +170,7 @@ function App() {
             user={displayUser}
             assignments={userAssignments}
             badges={userBadgeAwards}
+            badgeDefinitions={badges || []}
             nextShift={nextShift}
             onNavigate={handleTabChange}
           />

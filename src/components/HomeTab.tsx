@@ -9,11 +9,12 @@ interface HomeTabProps {
   user: User
   assignments: Assignment[]
   badges: BadgeAward[]
+  badgeDefinitions: { id: string; name: string }[]
   nextShift?: Schedule
   onNavigate: (tab: string) => void
 }
 
-export function HomeTab({ user, assignments, badges, nextShift, onNavigate }: HomeTabProps) {
+export function HomeTab({ user, assignments, badges, badgeDefinitions, nextShift, onNavigate }: HomeTabProps) {
   const openAssignments = assignments.filter(a => a.status !== 'completed')
   const completedToday = assignments.filter(a => {
     if (!a.completed_at) return false
@@ -47,6 +48,10 @@ export function HomeTab({ user, assignments, badges, nextShift, onNavigate }: Ho
     if (!a.due_date) return false
     return new Date(a.due_date) < new Date()
   })
+
+  const featuredBadge = user.featured_badge_id
+    ? badgeDefinitions.find(b => b.id === user.featured_badge_id)?.name
+    : undefined
 
   return (
     <div className="container mx-auto py-6 px-4 space-y-6">

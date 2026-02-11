@@ -9,6 +9,7 @@ interface NameBadgeProps {
   nextShift?: string
   openTrainings?: number
   earnedBadges?: number
+  featuredBadgeName?: string
 }
 
 export function NameBadge({ 
@@ -16,7 +17,8 @@ export function NameBadge({
   todayGoalProgress = 0, 
   nextShift, 
   openTrainings = 0, 
-  earnedBadges = 0 
+  earnedBadges = 0,
+  featuredBadgeName
 }: NameBadgeProps) {
   const [isFlipped, setIsFlipped] = useState(false)
 

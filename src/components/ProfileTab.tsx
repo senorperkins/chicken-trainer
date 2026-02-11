@@ -3,11 +3,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Medal, Envelope, Calendar, SignOut } from '@phosphor-icons/react'
+import { Medal, Envelope, Calendar, SignOut, Sparkle } from '@phosphor-icons/react'
 import { EditProfileDialog } from '@/components/EditProfileDialog'
 import { SettingsDialog } from '@/components/SettingsDialog'
 import { getUserAvatarUrl } from '@/lib/avatars'
 import { useKV } from '@github/spark/hooks'
+import { BadgeMedallion } from '@/components/BadgeMedallion'
 
 interface ProfileTabProps {
   user: User
